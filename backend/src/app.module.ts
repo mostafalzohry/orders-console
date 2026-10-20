@@ -3,9 +3,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { envValidationSchema } from './config/env.validation';
+import { mongooseOptions } from './config/mongoose.config';
 import { loginThrottlers } from './config/throttler.config';
 import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -16,16 +18,14 @@ import { HealthModule } from './health/health.module';
     }),
     MongooseModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        uri: config.getOrThrow<string>('MONGODB_URI'),
-        serverSelectionTimeoutMS: 5000,
-      }),
+      useFactory: mongooseOptions,
     }),
     ThrottlerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: loginThrottlers,
     }),
     AuthModule,
+    OrdersModule,
     HealthModule,
   ],
 })

@@ -1,7 +1,7 @@
 import { envValidationSchema } from './env.validation';
 
 const validEnv = {
-  MONGODB_URI: 'mongodb://127.0.0.1:27017/orders',
+  MONGODB_URI: 'mongodb://127.0.0.1:27017/orders_console',
   JWT_SECRET: 'a'.repeat(32),
 };
 
