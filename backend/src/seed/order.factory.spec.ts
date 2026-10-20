@@ -1,8 +1,9 @@
 import { en, Faker } from '@faker-js/faker';
 import { Types } from 'mongoose';
 import { OrderStatus } from '../orders/order-status.enum';
-import { MAX_ITEMS_PER_ORDER } from '../orders/order.schema';
-import { buildOrder, NewOrder } from './order.factory';
+import { MAX_ITEMS_PER_ORDER } from '../orders/constants/orders.constants';
+import { NewOrder } from '../orders/new-order.type';
+import { buildOrder } from './order.factory';
 
 const NOW = new Date('2026-10-21T15:30:00');
 const CREATORS = [new Types.ObjectId(), new Types.ObjectId()];

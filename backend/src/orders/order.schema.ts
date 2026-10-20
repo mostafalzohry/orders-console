@@ -1,8 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
+import { MAX_ITEMS_PER_ORDER } from './constants/orders.constants';
 import { OrderStatus } from './order-status.enum';
-
-export const MAX_ITEMS_PER_ORDER = 5;
 
 const isWholeNumber = {
   validator: Number.isInteger,

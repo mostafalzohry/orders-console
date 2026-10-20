@@ -1,19 +1,16 @@
 import { en, Faker } from '@faker-js/faker';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { OrderStatus } from '../orders/order-status.enum';
-import { Order } from '../orders/order.schema';
+import { Types } from 'mongoose';
+import { OrdersRepository } from '../orders/orders.repository';
 import { PasswordService } from '../users/password.service';
 import { Role } from '../users/role.enum';
-import { User } from '../users/user.schema';
+import { UsersRepository } from '../users/users.repository';
 import { UsersService } from '../users/users.service';
 import { buildOrder } from './order.factory';
 
 const RANDOM_SEED = 42;
 const BATCH_SIZE = 5000;
-const NAMESPACE_NOT_FOUND = 26;
 
 export const SEED_USERS = [
   { email: 'admin@test.local', password: 'Admin123!', role: Role.Admin },
@@ -38,8 +35,8 @@ export class SeedService {
   private readonly logger = new Logger(SeedService.name);
 
   constructor(
-    @InjectModel(Order.name) private readonly orders: Model<Order>,
-    @InjectModel(User.name) private readonly users: Model<User>,
+    private readonly orders: OrdersRepository,
+    private readonly users: UsersRepository,
     private readonly usersService: UsersService,
     private readonly passwords: PasswordService,
     private readonly config: ConfigService,
@@ -51,29 +48,23 @@ export class SeedService {
     }
     const startedAt = Date.now();
 
-    await Promise.all([this.orders.init(), this.users.init()]);
-    await this.dropIfExists(this.orders);
-    await this.dropIfExists(this.users);
+    await Promise.all([this.orders.reset(), this.users.reset()]);
 
     const creatorIds = await this.createUsers();
     await this.createOrders(count, creatorIds, now);
 
     await Promise.all([
-      this.orders.createIndexes(),
-      this.users.createIndexes(),
+      this.orders.ensureIndexes(),
+      this.users.ensureIndexes(),
     ]);
 
-    return this.summarise(Date.now() - startedAt);
-  }
-
-  private async dropIfExists(model: Model<any>): Promise<void> {
-    try {
-      await model.collection.drop();
-    } catch (error) {
-      if ((error as { code?: number }).code !== NAMESPACE_NOT_FOUND) {
-        throw error;
-      }
-    }
+    return {
+      orders: await this.orders.count(),
+      users: await this.users.count(),
+      ordersByStatus: await this.orders.countByStatus(),
+      indexes: await this.orders.indexNames(),
+      elapsedMs: Date.now() - startedAt,
+    };
   }
 
   private async createUsers(): Promise<Types.ObjectId[]> {
@@ -102,26 +93,8 @@ export class SeedService {
       const batch = Array.from({ length: size }, () =>
         buildOrder({ faker, creatorIds, now }),
       );
-      await this.orders.insertMany(batch, { ordered: false });
+      await this.orders.insertMany(batch);
       this.logger.log(`Inserted ${inserted + size} / ${count} orders`);
     }
-  }
-
-  private async summarise(elapsedMs: number): Promise<SeedSummary> {
-    const byStatus = await this.orders.aggregate<{
-      _id: OrderStatus;
-      n: number;
-    }>([{ $group: { _id: '$status', n: { $sum: 1 } } }]);
-    const indexes = await this.orders.collection.indexes();
-
-    return {
-      orders: await this.orders.countDocuments(),
-      users: await this.users.countDocuments(),
-      ordersByStatus: Object.fromEntries(
-        byStatus.map((row) => [row._id, row.n]),
-      ),
-      indexes: indexes.map((index) => String(index.name)),
-      elapsedMs,
-    };
   }
 }

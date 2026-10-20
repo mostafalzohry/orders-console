@@ -6,7 +6,6 @@ import { envValidationSchema } from './config/env.validation';
 import { mongooseOptions } from './config/mongoose.config';
 import { loginThrottlers } from './config/throttler.config';
 import { AuthModule } from './auth/auth.module';
-import { HealthModule } from './health/health.module';
 import { OrdersModule } from './orders/orders.module';
 
 @Module({
@@ -26,7 +25,6 @@ import { OrdersModule } from './orders/orders.module';
     }),
     AuthModule,
     OrdersModule,
-    HealthModule,
   ],
 })
 export class AppModule {}

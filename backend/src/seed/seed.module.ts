@@ -4,7 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { envValidationSchema } from '../config/env.validation';
 import { mongooseOptions } from '../config/mongoose.config';
 import { Order, OrderSchema } from '../orders/order.schema';
-import { User, UserSchema } from '../users/user.schema';
+import { OrdersRepository } from '../orders/orders.repository';
 import { UsersModule } from '../users/users.module';
 import { SeedService } from './seed.service';
 
@@ -19,12 +19,9 @@ import { SeedService } from './seed.service';
       inject: [ConfigService],
       useFactory: mongooseOptions,
     }),
-    MongooseModule.forFeature([
-      { name: Order.name, schema: OrderSchema },
-      { name: User.name, schema: UserSchema },
-    ]),
+    MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
     UsersModule,
   ],
-  providers: [SeedService],
+  providers: [SeedService, OrdersRepository],
 })
 export class SeedModule {}

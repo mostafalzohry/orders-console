@@ -8,7 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
 import { UsersService } from '../users/users.service';
 import { AuthUser, toAuthUser } from './auth-user.type';
-import { AUTH_COOKIE } from './auth.constants';
+import { AUTH_COOKIE } from './constants/auth.constants';
 
 export type AuthenticatedRequest = Request & { user: AuthUser };
 

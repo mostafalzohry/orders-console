@@ -12,7 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import type { CookieOptions, Response } from 'express';
 import type { AuthUser } from './auth-user.type';
-import { AUTH_COOKIE } from './auth.constants';
+import { AUTH_COOKIE } from './constants/auth.constants';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './current-user.decorator';
 import { LoginDto } from './dto/login.dto';

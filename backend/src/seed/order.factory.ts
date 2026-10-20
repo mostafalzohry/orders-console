@@ -1,17 +1,9 @@
 import { Faker } from '@faker-js/faker';
 import { Types } from 'mongoose';
 import { OrderStatus } from '../orders/order-status.enum';
-import { MAX_ITEMS_PER_ORDER, OrderItem } from '../orders/order.schema';
-
-export interface NewOrder {
-  customerName: string;
-  customerEmail: string;
-  status: OrderStatus;
-  items: OrderItem[];
-  totalMinor: number;
-  createdBy: Types.ObjectId;
-  createdAt: Date;
-}
+import { NewOrder } from '../orders/new-order.type';
+import { MAX_ITEMS_PER_ORDER } from '../orders/constants/orders.constants';
+import { OrderItem } from '../orders/order.schema';
 
 export interface OrderFactoryContext {
   faker: Faker;

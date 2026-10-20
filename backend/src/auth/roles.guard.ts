@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role } from '../users/role.enum';
-import { ROLES_KEY } from './auth.constants';
+import { ROLES_KEY } from './constants/auth.constants';
 import { AuthenticatedRequest } from './jwt-auth.guard';
 
 @Injectable()
