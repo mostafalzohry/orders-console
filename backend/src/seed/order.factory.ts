@@ -2,6 +2,7 @@ import { Faker } from '@faker-js/faker';
 import { Types } from 'mongoose';
 import { OrderStatus } from '../orders/order-status.enum';
 import { NewOrder } from '../orders/new-order.type';
+import { calculateTotalMinor } from '../orders/order-total';
 import { MAX_ITEMS_PER_ORDER } from '../orders/constants/orders.constants';
 import { OrderItem } from '../orders/order.schema';
 
@@ -63,10 +64,7 @@ export function buildOrder(context: OrderFactoryContext): NewOrder {
     customerEmail: faker.internet.email({ firstName, lastName }).toLowerCase(),
     status: faker.helpers.weightedArrayElement(STATUS_WEIGHTS),
     items,
-    totalMinor: items.reduce(
-      (sum, item) => sum + item.quantity * item.unitPriceMinor,
-      0,
-    ),
+    totalMinor: calculateTotalMinor(items),
     createdBy: faker.helpers.arrayElement(creatorIds),
     createdAt: buildCreatedAt(context),
   };

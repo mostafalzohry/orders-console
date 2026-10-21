@@ -11,3 +11,14 @@ export interface NewOrder {
   createdBy: Types.ObjectId;
   createdAt: Date;
 }
+
+export interface OrderToCreate {
+  customerName: string;
+  customerEmail: string;
+  status: OrderStatus;
+  items: OrderItem[];
+  totalMinor: number;
+  createdBy: string;
+  idempotencyKey: string;
+  payloadHash: string;
+}
