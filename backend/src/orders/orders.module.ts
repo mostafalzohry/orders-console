@@ -4,6 +4,7 @@ import { AuthModule } from '../auth/auth.module';
 import { Order, OrderSchema } from './order.schema';
 import { OrdersController } from './orders.controller';
 import { OrdersRepository } from './orders.repository';
+import { OrdersStatsService } from './orders-stats.service';
 import { OrdersService } from './orders.service';
 
 @Module({
@@ -12,7 +13,7 @@ import { OrdersService } from './orders.service';
     AuthModule,
   ],
   controllers: [OrdersController],
-  providers: [OrdersRepository, OrdersService],
+  providers: [OrdersRepository, OrdersService, OrdersStatsService],
   exports: [OrdersRepository, OrdersService],
 })
 export class OrdersModule {}

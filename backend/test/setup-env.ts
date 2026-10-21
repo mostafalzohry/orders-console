@@ -3,3 +3,5 @@ process.env.MONGODB_URI = 'mongodb://127.0.0.1:27017/orders_console_test';
 process.env.JWT_SECRET = 'test-secret-test-secret-test-secret-0000';
 process.env.LOGIN_RATE_LIMIT_PER_ACCOUNT = '1000';
 process.env.LOGIN_RATE_LIMIT_PER_IP = '1000';
+process.env.STATS_DELAY_MIN_MS = '0';
+process.env.STATS_DELAY_MAX_MS = '0';

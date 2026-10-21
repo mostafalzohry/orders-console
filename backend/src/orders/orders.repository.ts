@@ -4,6 +4,7 @@ import { FilterQuery, Model, Types } from 'mongoose';
 import { dropIfExists } from '../common/database/drop-if-exists';
 import { SortField } from './constants/orders.constants';
 import { NewOrder, OrderToCreate } from './new-order.type';
+import { OrderStatus } from './order-status.enum';
 import { Order, OrderDocument } from './order.schema';
 
 export type OrderRow = Pick<
@@ -103,6 +104,24 @@ export class OrdersRepository {
       }
       return { order: existing, created: false };
     }
+  }
+
+  async deleteById(id: string): Promise<boolean> {
+    const result = await this.orders.deleteOne({ _id: id }).exec();
+    return result.deletedCount === 1;
+  }
+
+  async revenueSince(since: Date): Promise<number> {
+    const rows = await this.orders.aggregate<{ total: number }>([
+      {
+        $match: {
+          createdAt: { $gte: since },
+          status: { $ne: OrderStatus.Cancelled },
+        },
+      },
+      { $group: { _id: null, total: { $sum: '$totalMinor' } } },
+    ]);
+    return rows[0]?.total ?? 0;
   }
 
   async insertMany(orders: NewOrder[]): Promise<void> {

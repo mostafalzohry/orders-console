@@ -11,6 +11,11 @@ export const envValidationSchema = Joi.object({
   JWT_EXPIRES_IN_SECONDS: Joi.number().integer().min(60).default(3600),
   LOGIN_RATE_LIMIT_PER_ACCOUNT: Joi.number().integer().min(1).default(5),
   LOGIN_RATE_LIMIT_PER_IP: Joi.number().integer().min(1).default(30),
+  STATS_DELAY_MIN_MS: Joi.number().integer().min(0).default(3000),
+  STATS_DELAY_MAX_MS: Joi.number()
+    .integer()
+    .min(Joi.ref('STATS_DELAY_MIN_MS'))
+    .default(6000),
   JWT_SECRET: Joi.string()
     .min(32)
     .required()

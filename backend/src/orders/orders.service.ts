@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
+  NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
@@ -43,6 +45,8 @@ export interface CreateOrderResult {
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
+
   constructor(private readonly orders: OrdersRepository) {}
 
   async list(query: ListOrdersQueryDto): Promise<OrderPage> {
@@ -103,6 +107,14 @@ export class OrdersService {
       );
     }
     return { order: toListItem(order), created };
+  }
+
+  async delete(id: string, actor: AuthUser): Promise<void> {
+    const deleted = await this.orders.deleteById(id);
+    if (!deleted) {
+      throw new NotFoundException('Order not found');
+    }
+    this.logger.log(`Order ${id} deleted by ${actor.email} (${actor.id})`);
   }
 
   private readCursor(query: ListOrdersQueryDto): Cursor {
