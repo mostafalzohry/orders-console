@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e1b4b"/>
+      <stop offset="1" stop-color="#4338ca"/>
+    </linearGradient>
+    <g id="box">
+      <polygon points="0,-60 104,0 0,60 -104,0" fill="#a5b4fc"/>
+      <polygon points="-104,0 0,60 0,180 -104,120" fill="#6366f1"/>
+      <polygon points="104,0 0,60 0,180 104,120" fill="#4f46e5"/>
+      <polygon points="-24,12 0,24 0,36 -24,24" fill="#e0e7ff" opacity="0.55"/>
+    </g>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg)"/>
+  <circle cx="650" cy="150" r="220" fill="#818cf8" opacity="0.15"/>
+  <circle cx="120" cy="880" r="260" fill="#312e81" opacity="0.6"/>
+  <use href="#box" transform="translate(400 300)"/>
+  <use href="#box" transform="translate(250 420) scale(0.8)"/>
+  <use href="#box" transform="translate(560 440) scale(0.8)"/>
+  <use href="#box" transform="translate(400 560)"/>
+  <use href="#box" transform="translate(190 640) scale(0.65)" opacity="0.8"/>
+  <use href="#box" transform="translate(610 650) scale(0.65)" opacity="0.8"/>
+</svg>
