@@ -38,3 +38,10 @@ export interface NewOrder {
   customerEmail: string;
   items: OrderItem[];
 }
+
+export interface OrderStats {
+  totalsByStatus: Record<OrderStatus, number>;
+  totalOrders: number;
+  revenueTodayMinor: number;
+  generatedAt: string;
+}

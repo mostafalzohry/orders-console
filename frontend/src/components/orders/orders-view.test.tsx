@@ -4,6 +4,19 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { OrdersView } from "./orders-view";
 
+const STATS = {
+  totalsByStatus: {
+    pending: 1,
+    paid: 2,
+    shipped: 3,
+    delivered: 4,
+    cancelled: 5,
+  },
+  totalOrders: 15,
+  revenueTodayMinor: 12550,
+  generatedAt: "2026-10-22T10:00:00.000Z",
+};
+
 const DELAY_BY_STATUS: Record<string, number> = {
   paid: 500,
   shipped: 50,
@@ -37,9 +50,14 @@ function stubFetch(
     url: string,
   ) => Promise<Response>,
   role: "admin" | "agent" = "agent",
+  statsResponse: () => Promise<Response> = () =>
+    Promise.resolve(Response.json(STATS)),
 ) {
   const fetchMock = vi.fn((input: unknown, init?: RequestInit) => {
     const url = String(input);
+    if (url === "/api/orders/stats") {
+      return statsResponse();
+    }
     if (url === "/api/me") {
       return Promise.resolve(
         Response.json({ id: "u1", email: "u@test.local", role }),
@@ -491,6 +509,82 @@ describe("OrdersView", () => {
       expect(
         screen.queryByRole("dialog", { name: "Order details" }),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("order statistics card", () => {
+    const statsCalls = (fetchMock: ReturnType<typeof stubFetch>) =>
+      fetchMock.mock.calls.filter(([input]) => input === "/api/orders/stats");
+
+    it("never blocks the list while the statistics are still loading", async () => {
+      stubFetch(
+        async () => page("row"),
+        "agent",
+        () => new Promise(() => {}),
+      );
+      renderView();
+
+      expect(await screen.findByText("row")).toBeVisible();
+      expect(
+        screen.getByRole("region", { name: "Order statistics" }),
+      ).toHaveAttribute("aria-busy", "true");
+      await userEvent.selectOptions(
+        screen.getByLabelText("Filter by status"),
+        "paid",
+      );
+      expect(await screen.findByText("row")).toBeVisible();
+    });
+
+    it("refreshes the statistics after an order is created", async () => {
+      const fetchMock = stubFetch(async (_params, init) =>
+        init?.method === "POST"
+          ? Response.json(orderRow("new order"), { status: 201 })
+          : page("row"),
+      );
+      renderView();
+      await screen.findByText("row");
+      await waitFor(() => expect(statsCalls(fetchMock)).toHaveLength(1));
+      const user = userEvent.setup();
+
+      await user.click(screen.getByRole("button", { name: "New order" }));
+      await user.type(screen.getByLabelText("Customer name"), "Ann Lee");
+      await user.type(
+        screen.getByLabelText("Customer email"),
+        "ann@example.com",
+      );
+      await user.type(screen.getByLabelText("Item 1 name"), "Mouse");
+      await user.type(screen.getByLabelText("Item 1 unit price"), "12.50");
+      await user.click(screen.getByRole("button", { name: "Create order" }));
+
+      await waitFor(() => expect(statsCalls(fetchMock)).toHaveLength(2));
+    });
+
+    it("refreshes the statistics after an order is deleted", async () => {
+      const fetchMock = stubFetch(
+        async (_params, init) =>
+          init?.method === "DELETE"
+            ? new Response(null, { status: 204 })
+            : Response.json({
+                data: [{ ...orderRow("ann lee"), id: "order-123" }],
+                nextCursor: null,
+              }),
+        "admin",
+      );
+      renderView();
+      await screen.findByText("ann lee");
+      await waitFor(() => expect(statsCalls(fetchMock)).toHaveLength(1));
+      const user = userEvent.setup();
+
+      await user.click(
+        await screen.findByRole("button", { name: /Delete order for/ }),
+      );
+      await user.click(
+        within(screen.getByRole("dialog")).getByRole("button", {
+          name: "Delete",
+        }),
+      );
+
+      await waitFor(() => expect(statsCalls(fetchMock)).toHaveLength(2));
     });
   });
 });

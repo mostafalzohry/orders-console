@@ -10,6 +10,7 @@ import type { Order } from "@/types/orders";
 import { DeleteOrderDialog } from "./delete-order-dialog";
 import { OrderDetails } from "./order-details";
 import { OrderForm } from "./order-form";
+import { OrdersStats } from "./orders-stats";
 import { OrdersTable } from "./orders-table";
 import { OrdersToolbar } from "./orders-toolbar";
 import { PaginationControls } from "./pagination-controls";
@@ -41,7 +42,9 @@ export function OrdersView() {
         </Button>
       </div>
 
-      <section className="flex min-h-80 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <OrdersStats />
+
+      <section className="flex min-h-[32rem] flex-1 flex-col overflow-hidden sm:min-h-80 rounded-xl border border-slate-200 bg-white shadow-sm">
         <OrdersToolbar
           searchInput={view.searchInput}
           status={view.query.status}

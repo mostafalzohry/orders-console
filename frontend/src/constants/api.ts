@@ -3,6 +3,7 @@ export const API_PATHS = {
   logout: "/api/logout",
   me: "/api/me",
   orders: "/api/orders",
+  orderStats: "/api/orders/stats",
 } as const;
 
 export const QUERY_KEYS = {
