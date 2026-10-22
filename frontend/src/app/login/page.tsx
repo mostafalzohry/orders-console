@@ -1,9 +1,10 @@
 import Image from "next/image";
 import { LoginForm } from "@/components/auth/login-form";
+import { LogoMark } from "@/components/ui/icons";
 
 export default function LoginPage() {
   return (
-    <main className="grid min-h-screen lg:grid-cols-2">
+    <main className="grid min-h-screen bg-white lg:grid-cols-2">
       <aside className="relative hidden bg-indigo-950 lg:block">
         <Image
           src="/login-art.svg"
@@ -19,7 +20,10 @@ export default function LoginPage() {
       </aside>
       <section className="flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
-          <h1 className="text-2xl font-semibold">Sign in</h1>
+          <LogoMark className="size-10" />
+          <h1 className="mt-6 text-2xl font-semibold tracking-tight">
+            Sign in
+          </h1>
           <p className="mt-1 mb-8 text-sm text-slate-500">
             Use your Orders Console account.
           </p>

@@ -3,13 +3,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
+import { INPUT_CLASS, LABEL_CLASS } from "@/constants/styles";
 import { loginErrorMessage } from "@/lib/auth/login-error-message";
 import { loginSchema, type LoginValues } from "@/lib/auth/login-schema";
 import { useLogin } from "@/lib/auth/use-login";
-
-const inputClass =
-  "mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600/20";
 
 export function LoginForm() {
   const router = useRouter();
@@ -26,7 +25,7 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
       <div>
-        <label htmlFor="email" className="text-sm font-medium text-slate-700">
+        <label htmlFor="email" className={LABEL_CLASS}>
           Email
         </label>
         <input
@@ -34,7 +33,7 @@ export function LoginForm() {
           type="email"
           autoComplete="email"
           aria-invalid={Boolean(errors.email)}
-          className={inputClass}
+          className={`${INPUT_CLASS} mt-1`}
           {...register("email")}
         />
         {errors.email && (
@@ -44,10 +43,7 @@ export function LoginForm() {
         )}
       </div>
       <div>
-        <label
-          htmlFor="password"
-          className="text-sm font-medium text-slate-700"
-        >
+        <label htmlFor="password" className={LABEL_CLASS}>
           Password
         </label>
         <input
@@ -55,7 +51,7 @@ export function LoginForm() {
           type="password"
           autoComplete="current-password"
           aria-invalid={Boolean(errors.password)}
-          className={inputClass}
+          className={`${INPUT_CLASS} mt-1`}
           {...register("password")}
         />
         {errors.password && (
@@ -72,13 +68,9 @@ export function LoginForm() {
           {loginErrorMessage(login.error)}
         </p>
       )}
-      <button
-        type="submit"
-        disabled={login.isPending}
-        className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 font-medium text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
-      >
+      <Button type="submit" disabled={login.isPending} className="w-full">
         {login.isPending ? "Signing in…" : "Sign in"}
-      </button>
+      </Button>
     </form>
   );
 }
