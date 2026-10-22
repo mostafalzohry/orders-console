@@ -1,0 +1,13 @@
+{
+  "name": "orders-console",
+  "private": true,
+  "description": "Orders Console: NestJS API and Next.js app",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "seed": "npm --prefix backend run seed",
+    "dev": "node scripts/dev.mjs"
+  }
+}

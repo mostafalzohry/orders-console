@@ -7,7 +7,8 @@ export function useDeleteOrder() {
   return useMutation({
     mutationFn: (id: string) =>
       apiVoid(`${API_PATHS.orders}/${id}`, { method: "DELETE" }),
-    onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders }),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders });
+    },
   });
 }

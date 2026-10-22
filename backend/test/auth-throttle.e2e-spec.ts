@@ -1,17 +1,30 @@
-process.env.LOGIN_RATE_LIMIT_PER_ACCOUNT = '3';
-process.env.LOGIN_RATE_LIMIT_PER_IP = '5';
-
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
+import { setEnv } from './helpers/env';
 
 describe('Login rate limits (e2e)', () => {
   let app: INestApplication<App>;
+  let restoreEnv: () => void;
+
+  beforeAll(() => {
+    restoreEnv = setEnv({
+      LOGIN_RATE_LIMIT_PER_ACCOUNT: '3',
+      LOGIN_RATE_LIMIT_PER_IP: '5',
+    });
+  });
+
+  afterAll(() => {
+    restoreEnv();
+  });
 
   beforeEach(async () => {
+    const { AppModule } =
+      jest.requireActual<typeof import('../src/app.module')>(
+        '../src/app.module',
+      );
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();

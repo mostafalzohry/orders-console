@@ -586,5 +586,74 @@ describe("OrdersView", () => {
 
       await waitFor(() => expect(statsCalls(fetchMock)).toHaveLength(2));
     });
+    it("closes the create dialog without waiting for the slow statistics refresh", async () => {
+      let statsRequests = 0;
+      stubFetch(
+        async (_params, init) =>
+          init?.method === "POST"
+            ? Response.json(orderRow("new order"), { status: 201 })
+            : page("row"),
+        "agent",
+        () => {
+          statsRequests += 1;
+          return statsRequests === 1
+            ? Promise.resolve(Response.json(STATS))
+            : new Promise(() => {});
+        },
+      );
+      renderView();
+      await screen.findByText("row");
+      await waitFor(() => expect(statsRequests).toBe(1));
+      const user = userEvent.setup();
+
+      await user.click(screen.getByRole("button", { name: "New order" }));
+      await user.type(screen.getByLabelText("Customer name"), "Ann Lee");
+      await user.type(
+        screen.getByLabelText("Customer email"),
+        "ann@example.com",
+      );
+      await user.type(screen.getByLabelText("Item 1 name"), "Mouse");
+      await user.type(screen.getByLabelText("Item 1 unit price"), "12.50");
+      await user.click(screen.getByRole("button", { name: "Create order" }));
+
+      await waitFor(() => expect(statsRequests).toBe(2));
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+
+    it("closes the delete dialog without waiting for the slow statistics refresh", async () => {
+      let statsRequests = 0;
+      stubFetch(
+        async (_params, init) =>
+          init?.method === "DELETE"
+            ? new Response(null, { status: 204 })
+            : Response.json({
+                data: [{ ...orderRow("ann lee"), id: "order-123" }],
+                nextCursor: null,
+              }),
+        "admin",
+        () => {
+          statsRequests += 1;
+          return statsRequests === 1
+            ? Promise.resolve(Response.json(STATS))
+            : new Promise(() => {});
+        },
+      );
+      renderView();
+      await screen.findByText("ann lee");
+      await waitFor(() => expect(statsRequests).toBe(1));
+      const user = userEvent.setup();
+
+      await user.click(
+        await screen.findByRole("button", { name: /Delete order for/ }),
+      );
+      await user.click(
+        within(screen.getByRole("dialog")).getByRole("button", {
+          name: "Delete",
+        }),
+      );
+
+      await waitFor(() => expect(statsRequests).toBe(2));
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
   });
 });

@@ -25,6 +25,14 @@ export interface TestContext {
   close: () => Promise<void>;
 }
 
+export function assertTestDatabase(connection: Connection): void {
+  if (!/_test$/.test(connection.name)) {
+    throw new Error(
+      `Refusing to wipe "${connection.name}": not a test database`,
+    );
+  }
+}
+
 export async function createTestContext(): Promise<TestContext> {
   const moduleRef = await Test.createTestingModule({
     imports: [AppModule],
@@ -34,11 +42,7 @@ export async function createTestContext(): Promise<TestContext> {
   await app.init();
 
   const connection = app.get<Connection>(getConnectionToken());
-  if (!/_test$/.test(connection.name)) {
-    throw new Error(
-      `Refusing to wipe "${connection.name}": not a test database`,
-    );
-  }
+  assertTestDatabase(connection);
   const orders = app.get<Model<Order>>(getModelToken(Order.name));
   await orders.init();
 

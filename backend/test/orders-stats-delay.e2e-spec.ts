@@ -1,18 +1,24 @@
-process.env.STATS_DELAY_MIN_MS = '500';
-process.env.STATS_DELAY_MAX_MS = '500';
-
 import { request as httpRequest } from 'node:http';
 import request from 'supertest';
 import { OrdersRepository } from '../src/orders/orders.repository';
-import { createTestContext, TestContext } from './helpers/test-context';
+import { setEnv } from './helpers/env';
+import type { TestContext } from './helpers/test-context';
 
 const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('Order stats are deliberately slow and cancellable (e2e)', () => {
   let ctx: TestContext;
   let port: number;
+  let restoreEnv: () => void;
 
   beforeAll(async () => {
+    restoreEnv = setEnv({
+      STATS_DELAY_MIN_MS: '500',
+      STATS_DELAY_MAX_MS: '500',
+    });
+    const { createTestContext } = jest.requireActual<
+      typeof import('./helpers/test-context')
+    >('./helpers/test-context');
     ctx = await createTestContext();
     await ctx.app.listen(0);
     port = Number(new URL(await ctx.app.getUrl()).port);
@@ -20,6 +26,7 @@ describe('Order stats are deliberately slow and cancellable (e2e)', () => {
 
   afterAll(async () => {
     await ctx.close();
+    restoreEnv();
   });
 
   afterEach(() => {

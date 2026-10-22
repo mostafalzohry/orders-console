@@ -18,7 +18,8 @@ export function useCreateOrder() {
         headers: { [IDEMPOTENCY_HEADER]: idempotencyKey },
         body: JSON.stringify(order),
       }),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.orders });
+    },
   });
 }

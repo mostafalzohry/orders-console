@@ -20,6 +20,7 @@ import { RolesGuard } from '../src/auth/roles.guard';
 import { PasswordService } from '../src/users/password.service';
 import { Role } from '../src/users/role.enum';
 import { UsersService } from '../src/users/users.service';
+import { assertTestDatabase } from './helpers/test-context';
 
 @Controller('test')
 class ProbeController {
@@ -67,6 +68,7 @@ describe('Auth (e2e)', () => {
     await app.init();
 
     connection = app.get<Connection>(getConnectionToken());
+    assertTestDatabase(connection);
     jwt = app.get(JwtService);
     const users = app.get(UsersService);
     const passwords = app.get(PasswordService);
@@ -97,6 +99,15 @@ describe('Auth (e2e)', () => {
     });
     adminId = String(admin.id);
     agentId = String(agent.id);
+  });
+
+  afterEach(async () => {
+    await connection
+      .collection('users')
+      .updateOne(
+        { email: AGENT.email },
+        { $set: { active: true, role: Role.Agent } },
+      );
   });
 
   afterAll(async () => {
@@ -239,10 +250,6 @@ describe('Auth (e2e)', () => {
         .updateOne({ email: AGENT.email }, { $set: { active: false } });
 
       await request(server()).get('/api/me').set('Cookie', cookie).expect(401);
-
-      await connection
-        .collection('users')
-        .updateOne({ email: AGENT.email }, { $set: { active: true } });
     });
   });
 
@@ -296,10 +303,6 @@ describe('Auth (e2e)', () => {
         .get('/api/test/admin-only')
         .set('Cookie', cookie)
         .expect(200);
-
-      await connection
-        .collection('users')
-        .updateOne({ email: AGENT.email }, { $set: { role: Role.Agent } });
     });
   });
 
